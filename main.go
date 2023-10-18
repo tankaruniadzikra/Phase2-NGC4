@@ -64,6 +64,18 @@ func main() {
 		handler.GetCriminalReportByID(w, r, p, db)
 	})
 
+	router.POST("/criminal_reports", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		handler.AddCriminalReport(w, r, p, db)
+	})
+
+	router.PUT("/criminal_reports/:id", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		handler.UpdateCriminalReport(w, r, p, db)
+	})
+
+	router.DELETE("/criminal_reports/:id", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		handler.DeleteCriminalReport(w, r, p, db)
+	})
+
 	// Membuat server HTTP
 	app := http.Server{
 		Addr:    "localhost:8001",

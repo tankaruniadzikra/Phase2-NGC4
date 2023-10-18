@@ -69,3 +69,74 @@ func GetCriminalReportByID(w http.ResponseWriter, r *http.Request, p httprouter.
 		"report":  report,
 	})
 }
+
+// Handler untuk menambahkan laporan kejahatan baru
+func AddCriminalReport(w http.ResponseWriter, r *http.Request, p httprouter.Params, db *sql.DB) {
+	var newReport entity.CriminalReport
+	err := json.NewDecoder(r.Body).Decode(&newReport)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	result, err := db.Exec("INSERT INTO criminalreports (hero_ID, villain_ID, description, time) VALUES (?, ?, ?, ?)",
+		newReport.HeroID, newReport.VillainID, newReport.Description, newReport.Time)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	newID, err := result.LastInsertId()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "Data laporan kejahatan berhasil ditambahkan",
+		"new_id":  newID,
+	})
+}
+
+// Handler untuk memperbarui laporan kejahatan berdasarkan ID
+func UpdateCriminalReport(w http.ResponseWriter, r *http.Request, p httprouter.Params, db *sql.DB) {
+	paramID := p.ByName("id") // Mendapatkan ID dari parameter URL
+
+	var updatedReport entity.CriminalReport
+	err := json.NewDecoder(r.Body).Decode(&updatedReport)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Query database untuk memperbarui laporan kejahatan
+	_, err = db.Exec("UPDATE criminalreports SET hero_ID=?, villain_ID=?, description=?, time=? WHERE id=?",
+		updatedReport.HeroID, updatedReport.VillainID, updatedReport.Description, updatedReport.Time, paramID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "Data laporan kejahatan berhasil diperbarui",
+	})
+}
+
+// Handler untuk menghapus laporan kejahatan berdasarkan ID
+func DeleteCriminalReport(w http.ResponseWriter, r *http.Request, p httprouter.Params, db *sql.DB) {
+	paramID := p.ByName("id") // Mendapatkan ID dari parameter URL
+
+	// Query database untuk menghapus laporan kejahatan
+	_, err := db.Exec("DELETE FROM criminalreports WHERE id=?", paramID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "Data laporan kejahatan berhasil dihapus",
+	})
+}
