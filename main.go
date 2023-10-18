@@ -60,6 +60,10 @@ func main() {
 		handler.GetCriminalReports(w, r, p, db)
 	})
 
+	router.GET("/criminal_reports/:id", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		handler.GetCriminalReportByID(w, r, p, db)
+	})
+
 	// Membuat server HTTP
 	app := http.Server{
 		Addr:    "localhost:8001",

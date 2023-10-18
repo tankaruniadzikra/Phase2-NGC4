@@ -42,3 +42,30 @@ func GetCriminalReports(w http.ResponseWriter, r *http.Request, p httprouter.Par
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(reports) // Mengirim respons JSON dengan laporan kejahatan
 }
+
+// Handler untuk mendapatkan laporan kejahatan berdasarkan ID
+func GetCriminalReportByID(w http.ResponseWriter, r *http.Request, p httprouter.Params, db *sql.DB) {
+	paramID := p.ByName("id") // Mendapatkan ID dari parameter URL
+
+	var report entity.CriminalReport
+	// Query database untuk mendapatkan laporan kejahatan berdasarkan ID
+	err := db.QueryRow("SELECT * FROM criminalreports WHERE id=?", paramID).
+		Scan(&report.ID, &report.HeroID, &report.VillainID, &report.Description, &report.Time)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			w.WriteHeader(http.StatusNotFound)
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"error": "Data laporan kejahatan tidak ditemukan",
+			})
+			return
+		}
+		log.Fatal(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "Data laporan kejahatan ditemukan",
+		"report":  report,
+	})
+}
