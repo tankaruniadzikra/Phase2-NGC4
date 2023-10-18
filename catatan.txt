@@ -1,0 +1,14 @@
+POST and PUT
+{        
+	"hero_ID": 2,   
+	"villain_ID": 3,  
+	"description": "Burglary at XYZ Bank",
+	"time": "2023-10-14 10:10:00"       
+}
+
+{        
+	"hero_ID": 3,   
+	"villain_ID": 2,  
+	"description": "Burglary at ABC Restaurant",
+	"time": "2023-10-10 13:30:00"       
+}
